@@ -35,10 +35,10 @@ deals with enhanced support for JPA based data access layers.
  It makes it easier to build Spring-powered applications that use 
  data access technologies.  
  Spring Data Jpa是 Spring Data 大家庭的一员，它把基于Jpa的库的实现变得相当
- 容易，Spring Data Jpa 是为了简化Spring支持的项目的数据存储过程
+ 容易，Spring Data Jpa 是为了简化Spring支持的项目的数据存储过程  
  
- ####SpringBoot中Spring Data Jpa的使用
- SpringBoot中Spring Data Jpa的使用非常简单，在你的gradle文件中只添加以下内容即可
+####SpringBoot中Spring Data Jpa的使用
+SpringBoot中Spring Data Jpa的使用非常简单，在你的gradle文件中只添加以下内容即可
  ```groovy
  compile('org.springframework.boot:spring-boot-starter-data-jpa')
 ```
