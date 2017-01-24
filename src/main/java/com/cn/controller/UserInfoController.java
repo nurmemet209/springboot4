@@ -19,7 +19,7 @@ public class UserInfoController {
     UserInfoService userInfoService;
 
     @ResponseBody
-    @RequestMapping("/add")
+    @RequestMapping("add")
     public String  add(UserInfo userInfo){
         userInfo=new UserInfo();
         userInfo.setUserName("alim");
@@ -30,7 +30,7 @@ public class UserInfoController {
     }
 
     @ResponseBody
-    @RequestMapping("/findAll")
+    @RequestMapping("findAll")
     public List<UserInfo> findAll(UserInfo userInfo){
 
 
