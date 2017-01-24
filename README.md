@@ -51,8 +51,124 @@ spring.datasource.url=jdbc:mysql://localhost:3306/srm
 spring.datasource.username=root
 spring.datasource.password=123456
 ```
-使用alibaba Druid数据库连接池还得引入(该库的版本你可以先搜maven找到最新版本)
+使用alibaba Druid数据库连接池，gradle中还得引入Druid(该库的版本你可以先搜maven找到最新版本)
 ```groovy
 compile group: 'com.alibaba', name: 'druid', version: '1.0.27'
 ```
+之后在启动类添加注解
+```java
+import org.springframework.boot.web.support.SpringBootServletInitializer;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+/**
+ * Created by Administrator on 1/23/2017.
+ */
+@SpringBootApplication(scanBasePackages = "com.cn")
+@EnableJpaRepositories("com.cn.reposity")
+@EntityScan("com.cn.entity")
+public class SampleApplication extends SpringBootServletInitializer {
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        return builder.sources(SampleApplication.class);
+    }
+    public static void main(String[] args){
+        SpringApplication.run(SampleApplication.class,args);
+    }
+}
+
+```
+Dao层
+```java
+package com.cn.reposity;
+
+import com.cn.entity.UserInfo;
+import org.springframework.data.repository.CrudRepository;
+
+import javax.transaction.Transactional;
+import java.util.List;
+/**
+ * Created by Administrator on 1/23/2017.
+ */
+public interface UserInfoDao extends CrudRepository<UserInfo,Long> {
+    UserInfo findByUserName(String name);
+    List<UserInfo> findAll();
+}
+
+```
+Service层
+```java
+package com.cn.service;
+
+import com.cn.entity.UserInfo;
+import com.cn.reposity.UserInfoDao;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * Created by Administrator on 1/23/2017.
+ */
+@Service
+@Transactional
+public class UserInfoService {
+
+    @Autowired
+    UserInfoDao userInfoDao;
+
+    public UserInfo addUserInfo(UserInfo userInfo) {
+        return userInfoDao.save(userInfo);
+    }
+
+    public List<UserInfo> findAll() {
+        return userInfoDao.findAll();
+    }
+}
+
+```
+Controller层
+```java
+package com.cn.controller;
+
+import com.cn.entity.UserInfo;
+import com.cn.service.UserInfoService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
+
+/**
+ * Created by Administrator on 1/23/2017.
+ */
+@Controller
+@RequestMapping("userInfo")
+public class UserInfoController {
+    @Autowired
+    UserInfoService userInfoService;
+
+    @ResponseBody
+    @RequestMapping("add")
+    public String  add(UserInfo userInfo){
+        userInfo=new UserInfo();
+        userInfo.setUserName("alim");
+        userInfo.setAddress("和田");
+        userInfo.setTel("121212121");
+        userInfoService.addUserInfo(userInfo);
+        return "success";
+    }
+
+    @ResponseBody
+    @RequestMapping("findAll")
+    public List<UserInfo> findAll(UserInfo userInfo){
+        return userInfoService.findAll();
+    }
+
+}
+
+```
+效果  
+![](screenshoot/1.png)
