@@ -26,7 +26,7 @@ Spring Data 的目标是为数据存储提供方便，一致的，基于Spring�
 * Spring Data for Apache Solr
 * Spring Data Couchbase (community module)
 * Spring Data Elasticsearch (community module)
-* Spring Data Neo4j (community module)
+* Spring Data Neo4j (community module)  
 #### 什么是Spring Data Jpa?
 [Spring Data JPA](http://projects.spring.io/spring-data-jpa/), part of the larger 
 Spring Data family, makes it easy 
