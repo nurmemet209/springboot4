@@ -3,12 +3,14 @@ package com.cn.entity;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 
 /**
  * Created by Administrator on 1/23/2017.
  */
-@Entity(name = "user_info")
+@Entity
+@Table(name = "user_info")
 public class UserInfo implements Serializable{
 
     @Id
@@ -17,7 +19,15 @@ public class UserInfo implements Serializable{
     private String userName;
     private String address;
     private String tel;
+    private String age;
 
+
+    public String getAge() {
+        return age;
+    }
+    public void setAge(String age) {
+        this.age = age;
+    }
     public Long getId() {
         return id;
     }

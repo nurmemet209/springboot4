@@ -19,11 +19,27 @@ public class UserInfoService {
     @Autowired
     UserInfoDao userInfoDao;
 
+    /**
+     * 添加
+     * 如果userInfo存在Id那么更新，不存在添加
+     * @param userInfo
+     * @return
+     */
     public UserInfo addUserInfo(UserInfo userInfo) {
         return userInfoDao.save(userInfo);
     }
 
+    /**
+     * 查询全部
+     * @return
+     */
     public List<UserInfo> findAll() {
         return userInfoDao.findAll();
     }
+
+    public  List<UserInfo> findByUserName(String userName){
+        return userInfoDao.findByUserName(userName);
+    }
+
+
 }
