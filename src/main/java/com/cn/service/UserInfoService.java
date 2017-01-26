@@ -2,7 +2,9 @@ package com.cn.service;
 
 import com.cn.entity.UserInfo;
 import com.cn.reposity.UserInfoDao;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,7 +16,7 @@ import java.util.List;
  */
 @Service
 @Transactional
-public class UserInfoService {
+public class UserInfoService implements AuditorAware<UserInfo>{
 
     @Autowired
     UserInfoDao userInfoDao;
@@ -42,4 +44,8 @@ public class UserInfoService {
     }
 
 
+    @Override
+    public UserInfo getCurrentAuditor() {
+        return null;
+    }
 }

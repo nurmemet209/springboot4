@@ -2,7 +2,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cn.app.SampleApplication;
+import com.cn.entity.Brand;
 import com.cn.entity.UserInfo;
+import com.cn.reposity.BrandDao;
 import com.cn.reposity.UserInfoDao;
 import com.cn.service.UserInfoService;
 import jdk.nashorn.internal.parser.JSONParser;
@@ -16,6 +18,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -36,6 +39,9 @@ public class UserInfoTest {
 
     @Autowired
     UserInfoDao userInfoDao;
+
+    @Autowired
+    BrandDao brandDao;
 
     @Test
     public void test(){
@@ -75,8 +81,34 @@ public class UserInfoTest {
         System.out.println(JSON.toJSON(list3));
         System.out.println("使用@Query查询");
         List<UserInfo> list4=userInfoDao.queryByUserName("nurmemet");
-
         System.out.println(JSON.toJSON(list4));
+
+        List<UserInfo> list5=userInfoDao.findByAddressAndSort("上海嘉定南翔",new Sort("id"));
+        System.out.println("使用Sort 排序");
+        System.out.println(JSON.toJSON(list5));
+
+        List<UserInfo> list6=userInfoDao.findByNameAndAddress("nurmemet","上海嘉定南翔");
+        System.out.println("使用@Query+ @Param查询");
+        System.out.println(JSON.toJSON(list6));
+
+        List<UserInfo> list7=userInfoDao.queryNative("nurmemet");
+        System.out.println("使用@Query+ native sql");
+        System.out.println(JSON.toJSON(list7));
+
+        System.out.println("使用@Query+@Modifying");
+        int count=userInfoDao.udpateByUserName("mustapa","mustafa");
+        System.out.println("本次操作影响的行数"+count);
+    }
+
+
+    @Test
+    public void testBrand(){
+        Brand brand=new Brand();
+        brand.setBrandIntroduce("排气");
+        brand.setBrandClassifyId(1L);
+        brand.setBrandName("aibahe");
+        brandDao.save(brand);
+
     }
 
 

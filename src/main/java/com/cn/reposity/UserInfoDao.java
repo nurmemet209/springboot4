@@ -1,8 +1,12 @@
 package com.cn.reposity;
 
 import com.cn.entity.UserInfo;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -111,6 +115,8 @@ public interface UserInfoDao extends CrudRepository<UserInfo,Long> {
      */
     List<UserInfo> findByAddressOrderByIdAsc(String userName);
 
+
+
     /**
      * Not查询
      * @param age
@@ -139,6 +145,41 @@ public interface UserInfoDao extends CrudRepository<UserInfo,Long> {
      */
     @Query("select u from UserInfo u where  u.userName=?1")
     List<UserInfo> queryByUserName(String userName);
+
+    /**
+     * Sort 排序,Sort的构造  new Sort("实体类字段名"),这种排序只能跟@Query一起使用
+     * @param address
+     * @param sort
+     * @return
+     */
+    @Query("select u from UserInfo u where  u.address=?1")
+    List<UserInfo> findByAddressAndSort(String address,Sort sort);
+
+    /**
+     * @Query +@param查询
+     * @param userName
+     * @param address
+     * @return
+     */
+    @Query("select u from UserInfo u where  u.userName=:name and u.address=:add")
+    List<UserInfo> findByNameAndAddress(@Param("name")String userName, @Param("add")String address);
+
+    /**
+     * @Query+ native sql 查询
+     * @param userName
+     * @return
+     */
+    @Query(value = "select u.* from user_info u where u.user_name=?1",nativeQuery = true)
+    List<UserInfo> queryNative(String userName);
+
+    /**
+     * @Query+ @Modifying+ @Transactional 如果是更新语句必须得加上@Modifying注解和@Transactional注解,注意返回值，是int类型，是本次操作影响的行数
+     * @return
+     */
+    @Modifying
+    @Transactional
+    @Query("update UserInfo u set u.userName=?2 where  u.userName=?1")
+    int udpateByUserName(String userNameOld,String userNameNew);
 
 
 }
