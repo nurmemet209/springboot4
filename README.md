@@ -174,9 +174,8 @@ public class UserInfoController {
 效果  
 ![](screenshoot/1.png)
 
-####Spring data jpa 查询
+####Spring data jpa 查询([官方文档](http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.query-methods))  
 
-([官方文档](http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.query-methods))  
 * 根据方法名查询
 * 使用@Query查询
 * 使用@Quey注解的时候实体类必须用@Table(name="表明")注解来配置映射,发现不用@Query的时候用@Entity(name="表名")注解来配置映射不报错
