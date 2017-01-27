@@ -39,7 +39,7 @@ deals with enhanced support for JPA based data access layers.
  容易，Spring Data Jpa 是为了简化Spring支持的项目的数据存储过程  
  
 ####SpringBoot中Spring Data Jpa的使用
-SpringBoot中Spring Data Jpa的使用非常简单，在你的gradle文件中只添加以下内容即可
+SpringBoot中Spring Data Jpa([官方文档](http://docs.spring.io/spring-data/jpa/docs/current/reference/html/))的使用非常简单，在你的gradle文件中只添加以下内容即可
  ```groovy
  compile('org.springframework.boot:spring-boot-starter-data-jpa')
 ```
@@ -173,3 +173,422 @@ public class UserInfoController {
 ```
 效果  
 ![](screenshoot/1.png)
+
+####Spring data jpa 查询
+
+([官方文档](http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.query-methods))  
+* 根据方法名查询
+* 使用@Query查询
+* 使用@Quey注解的时候实体类必须用@Table(name="表明")注解来配置映射,发现不用@Query的时候用@Entity(name="表名")注解来配置映射不报错
+，但是用@Query就必须用@Table注解来配置映射
+* @Query+ @Modifying+ @Transactional 如果是更新语句必须得加上@Modifying注解和@Transactional注解,注意返回值，
+是int类型，是本次操作影响的行数
+```java
+package com.cn.reposity;
+
+import com.cn.entity.UserInfo;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import javax.transaction.Transactional;
+import java.util.List;
+/**
+ * Created by Administrator on 1/23/2017.
+ * 官方文档 https://docs.spring.io/spring-data/jpa/docs/current/reference/html/
+ */
+public interface UserInfoDao extends CrudRepository<UserInfo,Long> {
+    /**
+     * 根据属性名称查询
+     * @param name
+     * @return
+     */
+    List<UserInfo> findByUserName(String name);
+
+    /**
+     * 通过属性名称查询
+     * @param userName
+     * @param address
+     * @return
+     */
+    List<UserInfo> findByUserNameAndAddress(String userName,String address);
+    /**'
+     * 多个属性名称查询
+     * @param userName
+     * @param address
+     * @param tel
+     * @return
+     */
+    List<UserInfo> findByUserNameAndAddressAndTel(String userName,String address,String tel);
+
+
+    /**
+     * 查询全部
+     * @return
+     */
+    List<UserInfo> findAll();
+
+    /**
+     * Or 查询
+     * @param userName
+     * @param tel
+     * @return
+     */
+    List<UserInfo> findByUserNameOrTel(String userName ,String tel);
+
+    /**
+     * Between 查询
+     * @param start
+     * @param en
+     * @return
+     */
+    List<UserInfo> findByAgeBetween(int start,int en);
+
+    /**
+     * lessthan 查询
+     * @param age
+     * @return
+     */
+    List<UserInfo> findByAgeLessThan(int age);
+
+    /**
+     * greaterThan 查询
+     * @param age
+     * @return
+     */
+    List<UserInfo> findByAgeGreaterThan(int age);
+
+    /**
+     * isNull查询
+     * @return
+     */
+    List<UserInfo> findByAgeIsNull();
+
+    /**
+     * NotNull查询
+     * @return
+     */
+    List<UserInfo> findByAgeNotNull();
+
+    /**
+     * like查询
+     * @param userName
+     * @return
+     */
+    List<UserInfo> findByUserNameLike(String userName);
+
+    /**
+     * NotLike查询
+     * @param userName
+     * @return
+     */
+    List<UserInfo> findByUserNameNotLike(String userName);
+
+    /**
+     * OrderBy Desc
+     * @param userName
+     * @return
+     */
+    List<UserInfo> findByAddressOrderByIdDesc(String userName);
+
+    /**
+     * OrderBy Asc
+     * @param userName
+     * @return
+     */
+    List<UserInfo> findByAddressOrderByIdAsc(String userName);
+
+
+
+    /**
+     * Not查询
+     * @param age
+     * @return
+     */
+    List<UserInfo> findByAgeNot(int age);
+
+    /**
+     * In 查询
+     * @param ageList
+     * @return
+     */
+    List<UserInfo> findByAgeIn(List<Integer> ageList);
+
+    /**
+     * NotIn 查询
+     * @param ageList
+     * @return
+     */
+    List<UserInfo> findByAgeNotIn(List<Integer> ageList);
+
+    /**
+     * 使用@Quey注解的时候实体类必须用@Table(name="表明")注解来配置映射,发现不用@Query的时候用@Entity(name="表名")注解来配置映射不报错，但是用@Query就必须用@Table注解来配置映射
+     * @param userName
+     * @return
+     */
+    @Query("select u from UserInfo u where  u.userName=?1")
+    List<UserInfo> queryByUserName(String userName);
+
+    /**
+     * Sort 排序,Sort的构造  new Sort("实体类字段名"),这种排序只能跟@Query一起使用
+     * @param address
+     * @param sort
+     * @return
+     */
+    @Query("select u from UserInfo u where  u.address=?1")
+    List<UserInfo> findByAddressAndSort(String address,Sort sort);
+
+    /**
+     * @Query +@param查询
+     * @param userName
+     * @param address
+     * @return
+     */
+    @Query("select u from UserInfo u where  u.userName=:name and u.address=:add")
+    List<UserInfo> findByNameAndAddress(@Param("name")String userName, @Param("add")String address);
+
+    /**
+     * @Query+ native sql 查询
+     * @param userName
+     * @return
+     */
+    @Query(value = "select u.* from user_info u where u.user_name=?1",nativeQuery = true)
+    List<UserInfo> queryNative(String userName);
+
+    /**
+     * @Query+ @Modifying+ @Transactional 如果是更新语句必须得加上@Modifying注解和@Transactional注解,注意返回值，是int类型，是本次操作影响的行数
+     * @return
+     */
+    @Modifying
+    @Transactional
+    @Query("update UserInfo u set u.userName=?2 where  u.userName=?1")
+    int udpateByUserName(String userNameOld,String userNameNew);
+
+
+}
+
+```
+
+
+
+####使用@CreatedBy,@CreatedDate注解
+* 启动类添加@EnableJpaAuditing注解
+```java
+package com.cn.app;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.support.SpringBootServletInitializer;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
+/**
+ * Created by Administrator on 1/23/2017.
+ */
+@SpringBootApplication(scanBasePackages = "com.cn")
+@EnableJpaRepositories("com.cn.reposity")
+@EntityScan("com.cn.entity")
+@EnableJpaAuditing
+public class SampleApplication extends SpringBootServletInitializer {
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        return builder.sources(SampleApplication.class);
+    }
+    public static void main(String[] args){
+        SpringApplication.run(SampleApplication.class,args);
+    }
+}
+
+```
+* 先实现implements AuditorAware<T>  
+让任意一个被Spring系统扫描到的类实现以上接口，是用户实体类，本例子中UserInfo,本例子中UserInfoService实现该接口
+以下只是模拟数据，实际应用当中只要你返回一个当前用户对象就可以
+```java
+package com.cn.service;
+
+import com.cn.entity.UserInfo;
+import com.cn.reposity.UserInfoDao;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+/**
+ * Created by Administrator on 1/23/2017.
+ */
+@Service
+@Transactional
+public class UserInfoService implements AuditorAware<UserInfo>{
+
+    @Autowired
+    UserInfoDao userInfoDao;
+
+    /**
+     * 添加
+     * 如果userInfo存在Id那么更新，不存在添加
+     * @param userInfo
+     * @return
+     */
+    public UserInfo addUserInfo(UserInfo userInfo) {
+        return userInfoDao.save(userInfo);
+    }
+
+    /**
+     * 查询全部
+     * @return
+     */
+    public List<UserInfo> findAll() {
+        return userInfoDao.findAll();
+    }
+
+    public  List<UserInfo> findByUserName(String userName){
+        return userInfoDao.findByUserName(userName);
+    }
+
+
+    @Override
+    public UserInfo getCurrentAuditor() {
+        UserInfo userInfo=new UserInfo();
+        userInfo.setUserName("nurmemet");
+        userInfo.setId(8L);
+        return userInfo;
+    }
+}
+
+```
+* 添加@EntityListeners(AuditingEntityListener.class)注解
+还有注意字段名称实体类里面是createUser 但在表里面这个字段是create_user_id
+```java
+package com.cn.entity;
+
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import javax.persistence.*;
+import java.util.Date;
+
+/**
+ * Created by Administrator on 1/26/2017.
+ */
+@Entity
+@Table(name = "pro_brand")
+@EntityListeners(AuditingEntityListener.class)
+public class Brand {
+
+
+    @Id
+    @GeneratedValue
+    private Long brandId;
+    private String brandName;
+    private String brandLogo;
+    private Long brandClassifyId;
+
+    public String getBrandKeyword() {
+        return brandKeyword;
+    }
+
+    public void setBrandKeyword(String brandKeyword) {
+        this.brandKeyword = brandKeyword;
+    }
+
+    private String brandKeyword;
+    private String brandIntroduce;
+    private String brandResponsible;
+
+    @CreatedDate
+    private Date createTime;
+
+    public UserInfo getCreateUser() {
+        return createUser;
+    }
+
+    public void setCreateUser(UserInfo createUser) {
+        this.createUser = createUser;
+    }
+
+    @CreatedBy
+    @OneToOne
+    private UserInfo createUser;
+    private Integer state;
+
+    public Long getBrandId() {
+        return brandId;
+    }
+
+    public void setBrandId(Long brandId) {
+        this.brandId = brandId;
+    }
+
+    public String getBrandName() {
+        return brandName;
+    }
+
+    public void setBrandName(String brandName) {
+        this.brandName = brandName;
+    }
+
+    public String getBrandLogo() {
+        return brandLogo;
+    }
+
+    public void setBrandLogo(String brandLogo) {
+        this.brandLogo = brandLogo;
+    }
+
+    public Long getBrandClassifyId() {
+        return brandClassifyId;
+    }
+
+    public void setBrandClassifyId(Long brandClassifyId) {
+        this.brandClassifyId = brandClassifyId;
+    }
+
+
+    public String getBrandIntroduce() {
+        return brandIntroduce;
+    }
+
+    public void setBrandIntroduce(String brandIntroduce) {
+        this.brandIntroduce = brandIntroduce;
+    }
+
+    public String getBrandResponsible() {
+        return brandResponsible;
+    }
+
+    public void setBrandResponsible(String brandResponsible) {
+        this.brandResponsible = brandResponsible;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+
+
+    public Integer getState() {
+        return state;
+    }
+
+    public void setState(Integer state) {
+        this.state = state;
+    }
+
+
+}
+
+```
+对应的数据库表  
+![](screenshoot/2.png)

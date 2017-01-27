@@ -107,6 +107,7 @@ public class UserInfoTest {
         brand.setBrandIntroduce("排气");
         brand.setBrandClassifyId(1L);
         brand.setBrandName("aibahe");
+        brand.setState(1);
         brandDao.save(brand);
 
     }

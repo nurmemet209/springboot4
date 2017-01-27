@@ -2,11 +2,9 @@ package com.cn.entity;
 
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 
 /**
@@ -14,6 +12,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "pro_brand")
+@EntityListeners(AuditingEntityListener.class)
 public class Brand {
 
 
@@ -38,8 +37,18 @@ public class Brand {
 
     @CreatedDate
     private Date createTime;
+
+    public UserInfo getCreateUser() {
+        return createUser;
+    }
+
+    public void setCreateUser(UserInfo createUser) {
+        this.createUser = createUser;
+    }
+
     @CreatedBy
-    private UserInfo createUserId;
+    @OneToOne
+    private UserInfo createUser;
     private Integer state;
 
     public Long getBrandId() {
@@ -99,13 +108,7 @@ public class Brand {
         this.createTime = createTime;
     }
 
-    public UserInfo getCreateUserId() {
-        return createUserId;
-    }
 
-    public void setCreateUserId(UserInfo createUserId) {
-        this.createUserId = createUserId;
-    }
 
     public Integer getState() {
         return state;

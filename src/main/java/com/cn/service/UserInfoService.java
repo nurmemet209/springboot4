@@ -2,13 +2,11 @@ package com.cn.service;
 
 import com.cn.entity.UserInfo;
 import com.cn.reposity.UserInfoDao;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -46,6 +44,9 @@ public class UserInfoService implements AuditorAware<UserInfo>{
 
     @Override
     public UserInfo getCurrentAuditor() {
-        return null;
+        UserInfo userInfo=new UserInfo();
+        userInfo.setUserName("nurmemet");
+        userInfo.setId(8L);
+        return userInfo;
     }
 }
