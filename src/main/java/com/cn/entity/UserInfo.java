@@ -17,10 +17,13 @@ public class UserInfo implements Serializable{
     private String address;
     private String tel;
     private String age;
-    //抓取方式默认是Lazy
+    //抓取方式默认是Lazy，Lazy是懒加载 意思第一次查询的时候不查group 这个属性 当用到这个实体类的group字段的get方法是才去数据库读取
+    //这个字段,是Spring Jpa的一个特性，是因为有的时候我们原本就不想查出这个group信息而只是想查出UserInfo的基本信息，所以算是一个性能的保障。
+    //而FetchType.EAGER顾名词义就是立刻查询的意思，就跟第一次查询的时候跟UserInfo的其他属性一起查出来
+    //但是就算是一次性查出来（FetchType.EAGER），Spring 也不用一条sql来查出来而用多个sql查询，拼出结果
     //UserInfo->Group  是多对一的关系
     //JoinColumn 是user_info表里的字段
-    @ManyToOne(fetch =FetchType.LAZY)
+    @ManyToOne(fetch =FetchType.EAGER)
     @JoinColumn(name = "group_id")
     private Group group;
 

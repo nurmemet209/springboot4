@@ -392,7 +392,10 @@ public class UserInfo implements Serializable{
     private String address;
     private String tel;
     private String age;
-    //抓取方式默认是Lazy
+    //抓取方式默认是Lazy，Lazy是懒加载 意思第一次查询的时候不查group 这个属性 当用到这个实体类的group字段的get方法是才去数据库读取
+    //这个字段,是Spring Jpa的一个特性，是因为有的时候我们原本就不想查出这个group信息而只是想查出UserInfo的基本信息，所以算是一个性能的保障。
+    //而FetchType.EAGER顾名词义就是立刻查询的意思，就跟第一次查询的时候跟UserInfo的其他属性一起查出来
+    //但是就算是一次性查出来（FetchType.EAGER），Spring 也不用一条sql来查出来而用多个sql查询，拼出结果
     //UserInfo->Group  是多对一的关系
     //JoinColumn 是user_info表里的字段
     @ManyToOne(fetch =FetchType.LAZY)
@@ -451,6 +454,7 @@ public class UserInfo implements Serializable{
 
 }
 
+
 ```
 
 ```java
@@ -508,18 +512,60 @@ public class Group {
 }
 
 ```
-下面是测试方法
+下面是测试方法,如果上面的@OneToMany，@ManyToOne注解的fetch（UserInfo类里有说明）属性设置为Lazy本例子中
+会报错是因为,因为在测试类中当第一次查完数据库之后session 就会关闭，当 JSON.toJSONString
+里面用group的getGroup方法的时候因为session关闭状态无法查询数据库而报错，Controller中就不会这样
+是因为正是项目当中jpa session 的生命周期跟request的生命周期一样，当request返回之后session才被关闭
+还有一点springboot默认是使用google Gson作为HttpMessageConverter，而Gson默认是不支持循环以来检测
+下面的测试中Group里面有members成员这个会指向UserInfo,存在循环以来，这样导致Gson转换这个UserInfo
+对象的时候导致死循环内存溢出（配置fastjson为HttpMessageConverter在上一个项目中有讲解）
+
 ```java
-.......
-@Test
-public void ManyToOneTest() {
-    List<UserInfo> list = userInfoDao.findAll();
-    //用fastjson转换JSON输出
-    //注意，不要用JSON.toJSON()方法输出，此方默认不支持循环引用检测，导致序列化的时候内存溢出
-    System.out.println( JSON.toJSONString(list));
+import com.alibaba.fastjson.JSON;
+import com.cn.app.SampleApplication;
+import com.cn.entity.Brand;
+import com.cn.entity.UserInfo;
+import com.cn.reposity.BrandDao;
+import com.cn.reposity.UserInfoDao;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Sort;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.List;
+
+/**
+ * Created by Administrator on 1/25/2017.
+ */
+
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = SampleApplication.class)
+public class UserInfoTest {
+...
+    @Test
+    public void ManyToOneTest() {
+        List<UserInfo> list = userInfoDao.findAll();
+        //用fastjson转换JSON输出
+        //注意，不要用JSON.toJSON()方法输出，此方默认不支持循环引用检测，导致序列化的时候内存溢出
+        System.out.println( JSON.toJSONString(list));
     }
-  .......  
+...
+
+}
+
 ```
+下面相关表结构
+![](screenshoot/3.png)
+![](screenshoot/4.png)  
+下面是上面测试输出的sql语句，哪怕注释掉Group表里面的members字段，它也不会用
+left join的方式一次性查出UserInfo的信息而分两次查询第一次查出UserInfo Group之外的字段
+然后根据group_id查出Group再拼接，有几个gruop_id查询几次，上面的例子中UserInfo表里面有三条数据
+但group表只查询两次是因为 UserInfo表里面的group_id有重复，分别是1,1,2
+![](screenshoot/5.png)
+
 ####使用@CreatedBy,@CreatedDate注解
 * 启动类添加@EnableJpaAuditing注解
 ```java
