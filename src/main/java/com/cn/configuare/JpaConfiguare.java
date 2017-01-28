@@ -13,10 +13,6 @@ import org.springframework.data.domain.AuditorAware;
 @Configuration
 public class JpaConfiguare {
 
-//    @Autowired
-//    UserInfoService userInfoService;
-//    @Bean
-//    public AuditorAware<UserInfo> auditorProvider() {
-//        return userInfoService;
-//    }
+
+
 }

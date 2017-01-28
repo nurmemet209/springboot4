@@ -370,9 +370,156 @@ public interface UserInfoDao extends CrudRepository<UserInfo,Long> {
 }
 
 ```
+#### @ManyToOne注解的使用
+
+```java
+package com.cn.entity;
+
+import javax.persistence.*;
+import java.io.Serializable;
+
+/**
+ * Created by Administrator on 1/23/2017.
+ */
+@Entity
+@Table(name = "user_info")
+public class UserInfo implements Serializable{
+
+    @Id
+    @GeneratedValue
+    private Long id;
+    private String userName;
+    private String address;
+    private String tel;
+    private String age;
+    //抓取方式默认是Lazy
+    //UserInfo->Group  是多对一的关系
+    //JoinColumn 是user_info表里的字段
+    @ManyToOne(fetch =FetchType.LAZY)
+    @JoinColumn(name = "group_id")
+    private Group group;
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
 
 
 
+
+    public String getAge() {
+        return age;
+    }
+    public void setAge(String age) {
+        this.age = age;
+    }
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getTel() {
+        return tel;
+    }
+
+    public void setTel(String tel) {
+        this.tel = tel;
+    }
+
+
+}
+
+```
+
+```java
+package com.cn.entity;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by Administrator on 1/27/2017.
+ */
+@Entity
+@Table(name = "user_group")
+public class Group {
+
+    @Id
+    @GeneratedValue
+    private Long id;
+    private String name;
+
+    //fetch 默认值是 FetchType.Lazy
+    //Group->UserInfo 是一对多的关系 ，注意mappedBy是UserInfo实体类里面的字段名而不是user_info数据库表里面的字段名
+    @OneToMany(mappedBy = "group",fetch =FetchType.EAGER)
+    private List<UserInfo> members=new ArrayList<>();
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<UserInfo> getMembers() {
+        return members;
+    }
+
+    public void setMembers(List<UserInfo> members) {
+        this.members = members;
+    }
+
+
+}
+
+```
+下面是测试方法
+```java
+.......
+@Test
+public void ManyToOneTest() {
+    List<UserInfo> list = userInfoDao.findAll();
+    //用fastjson转换JSON输出
+    //注意，不要用JSON.toJSON()方法输出，此方默认不支持循环引用检测，导致序列化的时候内存溢出
+    System.out.println( JSON.toJSONString(list));
+    }
+  .......  
+```
 ####使用@CreatedBy,@CreatedDate注解
 * 启动类添加@EnableJpaAuditing注解
 ```java

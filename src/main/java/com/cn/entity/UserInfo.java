@@ -1,9 +1,6 @@
 package com.cn.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 
 /**
@@ -20,6 +17,22 @@ public class UserInfo implements Serializable{
     private String address;
     private String tel;
     private String age;
+    //抓取方式默认是Lazy
+    //UserInfo->Group  是多对一的关系
+    //JoinColumn 是user_info表里的字段
+    @ManyToOne(fetch =FetchType.LAZY)
+    @JoinColumn(name = "group_id")
+    private Group group;
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
+
+
 
 
     public String getAge() {
