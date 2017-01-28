@@ -46,6 +46,7 @@ public class Brand {
         this.createUser = createUser;
     }
 
+    //@JoinColumn注解指明该字段跟数据库的哪个字段关联如果不加，此处Jpa会在brand表里面寻找create_user_id字段（根据下面的字段生成,加_id）
     @CreatedBy
     @OneToOne
     private UserInfo createUser;

@@ -370,8 +370,13 @@ public interface UserInfoDao extends CrudRepository<UserInfo,Long> {
 }
 
 ```
-#### @ManyToOne注解的使用
-
+#### @ManyToOne,@OneToMany注解的使用
+* fetch属性的含义  
+查询模式分别是Lazy（懒加载，当调用该属性的getter方法时才查询数据）,EAGER（第一次查询时跟其它的属性一并带出来）
+* cascade 属性的含义  
+级联操作模式，比如当更新或删除UerInfo时,UserInfo对象里面的Group对象会不会更新或删除
+* optional 属性的含义  
+级联关系是否一定存在 ，optional会决定left join(查询所有符合条件的UserInfo并赋上group) 还是innerjoin(只返回两个表中链接字段相等的行)
 ```java
 package com.cn.entity;
 
@@ -399,7 +404,7 @@ public class UserInfo implements Serializable{
     //UserInfo->Group  是多对一的关系
     //JoinColumn 是user_info表里的字段
     @ManyToOne(fetch =FetchType.LAZY)
-    @JoinColumn(name = "group_id")
+    @JoinColumn(name = "group_id")//user_info表中关联user_group表的字段名称,如果此处不加@JoinColumn jpa会在user_info表里面寻找group_id(下面的group字段后面_id)如果找不到报错
     private Group group;
 
     public Group getGroup() {
@@ -516,7 +521,7 @@ public class Group {
 会报错是因为,因为在测试类中当第一次查完数据库之后session 就会关闭，当 JSON.toJSONString
 里面用group的getGroup方法的时候因为session关闭状态无法查询数据库而报错，Controller中就不会这样
 是因为正是项目当中jpa session 的生命周期跟request的生命周期一样，当request返回之后session才被关闭
-还有一点springboot默认是使用google Gson作为HttpMessageConverter，而Gson默认是不支持循环以来检测
+还有一点springboot默认是使用google Gson作为HttpMessageConverter，而Gson默认是不支持循环引用检测
 下面的测试中Group里面有members成员这个会指向UserInfo,存在循环以来，这样导致Gson转换这个UserInfo
 对象的时候导致死循环内存溢出（配置fastjson为HttpMessageConverter在上一个项目中有讲解）
 
@@ -657,6 +662,7 @@ public class UserInfoService implements AuditorAware<UserInfo>{
 ```
 * 添加@EntityListeners(AuditingEntityListener.class)注解
 还有注意字段名称实体类里面是createUser 但在表里面这个字段是create_user_id
+
 ```java
 package com.cn.entity;
 
@@ -706,6 +712,7 @@ public class Brand {
         this.createUser = createUser;
     }
 
+    //@JoinColumn注解指明该字段跟数据库的哪个字段关联如果不加，此处Jpa会在brand表里面寻找create_user_id字段（根据下面的字段生成,加_id）
     @CreatedBy
     @OneToOne
     private UserInfo createUser;
