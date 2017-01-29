@@ -1,7 +1,9 @@
 import com.alibaba.fastjson.JSON;
 import com.cn.app.SampleApplication;
+import com.cn.entity.Book;
 import com.cn.entity.Brand;
 import com.cn.entity.UserInfo;
+import com.cn.reposity.BookDao;
 import com.cn.reposity.BrandDao;
 import com.cn.reposity.UserInfoDao;
 import org.junit.Test;
@@ -28,6 +30,10 @@ public class UserInfoTest {
 
     @Autowired
     BrandDao brandDao;
+
+    @Autowired
+    BookDao bookDao;
+
 
     @Test
     public void test() {
@@ -107,6 +113,12 @@ public class UserInfoTest {
         //用fastjson转换JSON输出
         //注意，不要用JSON.toJSON()方法输出，此方默认不支持循环引用检测，导致序列化的时候内存溢出
         System.out.println( JSON.toJSONString(list));
+    }
+
+    @Test
+    public void EntityGraphTest(){
+        Book book = bookDao.findByName("忏悔录");
+        System.out.println(JSON.toJSONString(book));
     }
 
 

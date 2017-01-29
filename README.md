@@ -791,3 +791,143 @@ public class Brand {
 ```
 对应的数据库表  
 ![](screenshoot/2.png)
+
+#### @EntityGraph 动态改变 加载模式
+下面本来Author里面的bookList是LAZY模式，我们通过在Dao层方法上加上@EntityGraph注解
+把LAZY改成EAGER模式，@EntityGraph的attributePaths属性只可以是当前实体类里的属性
+也可以是当前实体类里面某个属性的实体类的变量比如下面例子中的author.bookList,但是不能同时含有当前实体类的
+属性和级联实体类的变量比如，要同时修改author和author里面的bookList的加载模式写成
+{ "author","author.bookList" }这样是不对的
+
+```java
+package com.cn.entity;
+
+import javax.persistence.*;
+
+/**
+ * Created by Administrator on 1/28/2017.
+ */
+@Entity
+@Table(name = "book")
+public class Book {
+
+    @Id
+    @GeneratedValue
+    private Long id;
+    private String name;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "author_id")
+    private Author author;
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Author getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(Author author) {
+        this.author = author;
+    }
+
+}
+
+```
+```java
+package com.cn.entity;
+
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by Administrator on 1/28/2017.
+ */
+@Entity
+@Table(name = "author")
+public class Author {
+
+    @Id
+    @GeneratedValue
+    private Long id;
+   private String name ;
+    @OneToMany(mappedBy = "author",fetch = FetchType.LAZY)
+    private List<Book> bookList=new ArrayList<>();
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<Book> getBookList() {
+        return bookList;
+    }
+
+    public void setBookList(List<Book> bookList) {
+        this.bookList = bookList;
+    }
+
+
+}
+
+```
+```java
+package com.cn.reposity;
+
+import com.cn.entity.Book;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.repository.CrudRepository;
+
+/**
+ * Created by Administrator on 1/28/2017.
+ */
+public interface BookDao extends CrudRepository<Book,Long> {
+
+     /**
+         * When the javax.persistence.loadgraph property is used to specify an entity graph, attributes that are specified
+         * by attribute nodes of the entity graph are treated as FetchType.EAGER and attributes that are not specified are
+         * treated according to their specified or default FetchType.
+         *
+         * @see JPA 2.1 Specification: 3.7.4.2 Load Graph Semantics
+         * <p>
+         *     在attributePaths里面声明的属性被视为FetchType.EAGER，其他属性被视为默认定义的加载模式
+         * LOAD("javax.persistence.loadgraph"),
+         * <p>
+         * When the javax.persistence.fetchgraph property is used to specify an entity graph, attributes that are specified
+         * by attribute nodes of the entity graph are treated as FetchType.EAGER and attributes that are not specified are
+         * treated as FetchType.LAZY
+         * @see JPA 2.1 Specification: 3.7.4.1 Fetch Graph Semantics
+         *     在attributePaths里面声明的属性被视为FetchType.EAGER，其他属性被视为FetchType.LAZY
+         * FETCH("javax.persistence.fetchgraph");
+         */
+    @EntityGraph(attributePaths = { "author.bookList" },type = EntityGraph.EntityGraphType.FETCH)
+    Book findByName(String name);
+
+}
+
+```
