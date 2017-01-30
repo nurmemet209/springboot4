@@ -1048,5 +1048,5 @@ public interface StudentDao extends CrudRepository<Student,Long> {
     */
    
 ```
-表结构
+表结构  
 ![](screenshoot/6.png)
