@@ -932,7 +932,7 @@ public interface BookDao extends CrudRepository<Book,Long> {
 
 ```
 
-#### 使用投影改变数据库返回的数据集合
+#### 使用投影改变数据库返回的数据集合([官方文档](http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#projections))
 Spring提供投影的方式指定数据库返回的数据，这样有的时候可以避免查询一些不必要查询的数据，也可以提高查询性能
 ```java
 package com.cn.entity;
