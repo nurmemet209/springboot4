@@ -3,8 +3,10 @@ import com.cn.app.SampleApplication;
 import com.cn.entity.Book;
 import com.cn.entity.Brand;
 import com.cn.entity.UserInfo;
+import com.cn.projection.StudentPro;
 import com.cn.reposity.BookDao;
 import com.cn.reposity.BrandDao;
+import com.cn.reposity.StudentDao;
 import com.cn.reposity.UserInfoDao;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +35,9 @@ public class UserInfoTest {
 
     @Autowired
     BookDao bookDao;
+
+    @Autowired
+    StudentDao studentDao;
 
 
     @Test
@@ -119,6 +124,13 @@ public class UserInfoTest {
     public void EntityGraphTest(){
         Book book = bookDao.findByName("忏悔录");
         System.out.println(JSON.toJSONString(book));
+    }
+
+    @Test
+    public void projectionTest(){
+        StudentPro studentPro=studentDao.findById(1L);
+        System.out.println(studentPro.getFullName());
+        System.out.println(studentPro.getFirstName());
     }
 
 

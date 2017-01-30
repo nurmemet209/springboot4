@@ -931,3 +931,122 @@ public interface BookDao extends CrudRepository<Book,Long> {
 }
 
 ```
+
+#### 使用投影改变数据库返回的数据集合
+Spring提供投影的方式指定数据库返回的数据，这样有的时候可以避免查询一些不必要查询的数据，也可以提高查询性能
+```java
+package com.cn.entity;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+/**
+ * Created by Administrator on 1/30/2017.
+ */
+@Entity
+@Table(name = "student")
+public class Student {
+    @Id
+    @GeneratedValue
+    private Long id;
+    private String firstName;
+    private String lastName;
+    private String stuNum;
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getStuNum() {
+        return stuNum;
+    }
+
+    public void setStuNum(String stuNum) {
+        this.stuNum = stuNum;
+    }
+
+}
+
+```
+
+```java
+package com.cn.projection;
+
+import org.springframework.beans.factory.annotation.Value;
+
+/**
+ * Created by Administrator on 1/30/2017.
+ */
+public interface StudentPro {
+    /**
+     * 实体类成员变量的get方法
+     * @return
+     */
+    String getFirstName();
+
+    /**
+     * 也可以不是实体类成员变量的get方法，但是这个时候你必须得告诉spring系统该字段是匹配实体类的那个字段
+     * 也可以是实体类多个字段拼出来之后的结果，如下
+     * @return
+     */
+    @Value("#{target.firstName} #{target.lastName}")
+    String getFullName();
+
+}
+
+```
+
+```java
+package com.cn.reposity;
+
+import com.cn.entity.Student;
+import com.cn.projection.StudentPro;
+import org.springframework.data.repository.CrudRepository;
+
+/**
+ * Created by Administrator on 1/30/2017.
+ */
+public interface StudentDao extends CrudRepository<Student,Long> {
+
+    StudentPro findById(Long id);
+
+}
+
+```
+测试类
+```java
+    /**
+    *     @Test
+          public void projectionTest(){
+              StudentPro studentPro=studentDao.findById(1L);
+              System.out.println(studentPro.getFullName());
+              System.out.println(studentPro.getFirstName());
+          }
+    */
+   
+```
+表结构
+![](screenshoot/6.png)
