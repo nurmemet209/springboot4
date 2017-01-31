@@ -1,15 +1,15 @@
 import com.alibaba.fastjson.JSON;
 import com.cn.app.SampleApplication;
-import com.cn.entity.Book;
-import com.cn.entity.Brand;
-import com.cn.entity.Car;
-import com.cn.entity.UserInfo;
+import com.cn.entity.*;
+import com.cn.entityspec.SchoolSpec;
 import com.cn.projection.StudentPro;
 import com.cn.reposity.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -39,6 +39,9 @@ public class UserInfoTest {
 
     @Autowired
     CarDao carDao;
+
+    @Autowired
+    SchoolDao schoolDao;
 
 
     @Test
@@ -144,6 +147,56 @@ public class UserInfoTest {
         System.out.println(sum2);
         int sum3=carDao.anyFunctionName2(10,50);
         System.out.println(sum3);
+    }
+
+    @Test
+    public void schoolTest(){
+        List<School> list=schoolDao.findAll(SchoolSpec.get());
+        System.out.println(JSON.toJSONString(list));
+
+        Pageable pageable=new Pageable() {
+            @Override
+            public int getPageNumber() {
+                return 1;
+            }
+
+            @Override
+            public int getPageSize() {
+                return 10;
+            }
+
+            @Override
+            public int getOffset() {
+                return 0;
+            }
+
+            @Override
+            public Sort getSort() {
+                return null;
+            }
+
+            @Override
+            public Pageable next() {
+                return null;
+            }
+
+            @Override
+            public Pageable previousOrFirst() {
+                return null;
+            }
+
+            @Override
+            public Pageable first() {
+                return null;
+            }
+
+            @Override
+            public boolean hasPrevious() {
+                return false;
+            }
+        };
+        Page<School> page=schoolDao.findAll(SchoolSpec.getEmptyOne(),pageable);
+        System.out.println(JSON.toJSONString(page));
     }
 
 
