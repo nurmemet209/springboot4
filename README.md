@@ -1050,3 +1050,139 @@ public interface StudentDao extends CrudRepository<Student,Long> {
 ```
 表结构  
 ![](screenshoot/6.png)
+
+####存储过程([官方文档](http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.stored-procedures))
+以下是一个Mysql存储过程的例子,StoredProcedures 按右键 创建存储过程  
+![](screenshoot/7.png)
+粘贴以下代码  
+```sql
+CREATE DEFINER=`root`@`localhost` PROCEDURE `test`(in a int,in b int,out c int)
+BEGIN
+
+    set c=a+b;
+    select c;
+    
+END
+```
+```java
+package com.cn.entity;
+
+import javax.persistence.*;
+
+/**
+ * Created by Administrator on 1/30/2017.
+ * @NamedStoredProcedureQuery 的name 由EntityManager维护的指向数据库存储过程名称的一个引用
+ * procedureName是数据库中存储过程的名称,out参数是作为方法的返回值返回Dao层声明方法的时候
+ * 不会在函数的参数列表出现，例如以下存储过程对应的Dao层函数为
+ *   @Procedure
+ *   int procedure1(@Param("a") Integer a, @Param("b") Integer b);
+ */
+@Entity
+@Table(name = "car")
+@NamedStoredProcedureQuery(name = "Car.procedure1", procedureName = "test", parameters = {
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "a", type = Integer.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "b", type = Integer.class),
+        @StoredProcedureParameter(mode = ParameterMode.OUT, name = "c", type = Integer.class)
+})
+public class Car {
+    @Id
+    @GeneratedValue
+    private Long id;
+    private String name;
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+
+```
+```java
+package com.cn.reposity;
+
+import com.cn.entity.Car;
+import org.springframework.data.jpa.repository.query.Procedure;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
+
+import javax.persistence.criteria.CriteriaBuilder;
+
+/**
+ * Created by Administrator on 1/30/2017.
+ */
+public interface CarDao extends CrudRepository<Car,Long> {
+
+    /**
+     * 通过procedureName调用存储过程(这里的方法名这是任意的)
+     * 如果函数参数列表名称不跟存储过程中定义的名称一样得用@Param注解指明相应参数在数据库存储过程中对应的参数名称，此处因为
+     * 跟数据库存储过程名称一样所以不用加@Param
+     * @param a
+     * @param b
+     * @return
+     */
+    @Procedure(procedureName  = "test")
+    int anyFunctionName( Integer a, Integer b);
+
+
+    /**
+     * 这里的test是存储过程名称,方法是任意的
+     * 如果函数参数列表名称不跟存储过程中定义的名称一样得用@Param注解指明相应参数在数据库存储过程中对应的参数名称，此处因为
+     * 跟数据库存储过程名称一样所以不用加@Param
+     * @param a
+     * @param b
+     * @return
+     */
+    @Procedure("test")
+    int anyFunctionName1(Integer a,  Integer b);
+
+    /**
+     * 根据方法名调用,这里的方法名是从NamedStoredProcedureQuery的那么name属性来的（Car.procedure1）
+     * 函数参数列表必须用@Param修饰
+     * @param a
+     * @param b
+     * @return
+     */
+    @Procedure
+    int procedure1(@Param("a") Integer a, @Param("b") Integer b);
+
+    /**
+     * 这里的方法名是任意的，参数列表必须用@Param修饰
+     * @param a
+     * @param b
+     * @return
+     */
+    @Procedure(name ="Car.procedure1" )
+    int anyFunctionName2(@Param("a") Integer a,@Param("b") Integer b) ;
+
+
+
+}
+
+```
+测试函数
+```java
+/*
+@Test
+public void storedProceduresTest(){
+    int sum=carDao.anyFunctionName(10,20);
+    System.out.println(sum);
+    int sum1=carDao.procedure1(10,30);
+    System.out.println(sum1);
+    int sum2=carDao.anyFunctionName1(10,40);
+    System.out.println(sum2);
+    int sum3=carDao.anyFunctionName2(10,50);
+    System.out.println(sum3);
+}*/
+```

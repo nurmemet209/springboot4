@@ -2,12 +2,10 @@ import com.alibaba.fastjson.JSON;
 import com.cn.app.SampleApplication;
 import com.cn.entity.Book;
 import com.cn.entity.Brand;
+import com.cn.entity.Car;
 import com.cn.entity.UserInfo;
 import com.cn.projection.StudentPro;
-import com.cn.reposity.BookDao;
-import com.cn.reposity.BrandDao;
-import com.cn.reposity.StudentDao;
-import com.cn.reposity.UserInfoDao;
+import com.cn.reposity.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +36,9 @@ public class UserInfoTest {
 
     @Autowired
     StudentDao studentDao;
+
+    @Autowired
+    CarDao carDao;
 
 
     @Test
@@ -131,6 +132,18 @@ public class UserInfoTest {
         StudentPro studentPro=studentDao.findById(1L);
         System.out.println(studentPro.getFullName());
         System.out.println(studentPro.getFirstName());
+    }
+
+    @Test
+    public void storedProceduresTest(){
+        int sum=carDao.anyFunctionName(10,20);
+        System.out.println(sum);
+        int sum1=carDao.procedure1(10,30);
+        System.out.println(sum1);
+        int sum2=carDao.anyFunctionName1(10,40);
+        System.out.println(sum2);
+        int sum3=carDao.anyFunctionName2(10,50);
+        System.out.println(sum3);
     }
 
 
