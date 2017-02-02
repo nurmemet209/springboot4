@@ -48,6 +48,8 @@ public class UserInfoTest {
     @Autowired
     PersonService personService;
 
+    @Autowired
+    ComputerRepository computerRepository;
 
     @Test
     public void test() {
@@ -240,6 +242,13 @@ public class UserInfoTest {
 
 
 
+    }
+
+
+    @Test
+    public void CustomRepositoryTest(){
+        Computer computer = computerRepository.findByPrimaryKey(1L);
+        System.out.println(JSON.toJSONString(computer));
     }
 
 }

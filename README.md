@@ -1543,3 +1543,140 @@ public class UserInfoTest {
  【 if the transaction is marked as read-only, Spring will set the Hibernate Session’s flush mode to FLUSH_NEVER, 
  and will set the JDBC transaction to read-only】  
  也就是说在Spring中设置只读事务是利用上面两种方式
+ 
+ ####数据库加锁与 @Lock注解  [官方文档](http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#locking)
+ 关于乐观锁悲观锁这里不再赘述下面一个别人的博客讲的比较详细[Lock](http://www.jianshu.com/p/4bc01d3c980a)
+ 
+ 
+ ####自定义Spring Data repositories [官方文档](http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.custom-implementations)  
+ 
+ ```java
+package com.cn.entity;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+/**
+ * Created by Administrator on 2/2/2017.
+ */
+@Entity
+@Table(name = "computer")
+public class Computer {
+
+    @Id
+    @GeneratedValue
+    private Long id;
+    private String size;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
+}
+
+```
+```java
+package com.cn.reposity;
+
+import com.cn.entity.Computer;
+
+/**
+ * Created by Administrator on 2/2/2017.
+ */
+public interface ComputerRepository {
+     public Computer findByPrimaryKey(Long id);
+}
+
+```
+在跟上面自定义Repository同一个目录下新建它的实现,注意命名规则，自定义接口名称后面加Impl  
+还有注解@Repository
+```java
+package com.cn.reposity;
+
+import com.cn.entity.Author;
+import com.cn.entity.Computer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+/**
+ * Created by Administrator on 2/2/2017.
+ */
+@Repository
+public class ComputerRepositoryImpl implements ComputerRepository {
+
+    @Autowired
+    @PersistenceContext
+    EntityManager entityManager;
+
+
+    @Override
+    public Computer findByPrimaryKey(Long id) {
+        return entityManager.find(Computer.class,id);
+
+    }
+}
+
+```
+测试类
+```java
+import com.alibaba.fastjson.JSON;
+import com.cn.app.SampleApplication;
+import com.cn.entity.*;
+import com.cn.entityspec.SchoolSpec;
+import com.cn.projection.StudentPro;
+import com.cn.reposity.*;
+import com.cn.service.PersonService;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.List;
+
+/**
+ * Created by Administrator on 1/25/2017.
+ */
+
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = SampleApplication.class)
+public class UserInfoTest {
+
+
+   
+
+    @Autowired
+    ComputerRepository computerRepository;
+
+    
+
+    @Test
+    public void CustomRepositoryTest(){
+        Computer computer = computerRepository.findByPrimaryKey(1L);
+        System.out.println(JSON.toJSONString(computer));
+    }
+
+}
+
+```

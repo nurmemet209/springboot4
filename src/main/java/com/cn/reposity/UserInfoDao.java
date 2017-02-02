@@ -2,11 +2,13 @@ package com.cn.reposity;
 
 import com.cn.entity.UserInfo;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
+import javax.persistence.LockModeType;
 import javax.transaction.Transactional;
 import java.util.List;
 /**
@@ -177,7 +179,7 @@ public interface UserInfoDao extends CrudRepository<UserInfo,Long> {
      */
     @Modifying
     @Transactional
-    @org.springframework.transaction.annotation.Transactional
+    @Lock(LockModeType.READ)
     @Query("update UserInfo u set u.userName=?2 where  u.userName=?1")
     int udpateByUserName(String userNameOld,String userNameNew);
 
