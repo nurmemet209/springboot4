@@ -4,10 +4,12 @@ import com.cn.entity.*;
 import com.cn.entityspec.SchoolSpec;
 import com.cn.projection.StudentPro;
 import com.cn.reposity.*;
+import com.cn.service.PersonService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -42,6 +44,9 @@ public class UserInfoTest {
 
     @Autowired
     SchoolDao schoolDao;
+
+    @Autowired
+    PersonService personService;
 
 
     @Test
@@ -199,5 +204,42 @@ public class UserInfoTest {
         System.out.println(JSON.toJSONString(page));
     }
 
+
+    @Test
+    public void ExampleQueryTest(){
+        {
+            Person person=new Person();
+            person.setLastName("ahmat");
+            Iterable<Person> iterable=personService.findAll(person);
+            iterable.forEach(person1 -> System.out.println(JSON.toJSONString(person1)));
+        }
+        {
+            Person person=new Person();
+            person.setLastName("mat");
+            //下面的lastName 也可以是级联对象，如果是级联对象如：withMatcher("address.city"......
+            ExampleMatcher matcher=ExampleMatcher.matching().withIgnoreCase().withMatcher("lastName", match -> match.endsWith());
+            Iterable<Person> iterable=personService.findAll(person,matcher);
+            iterable.forEach(person1 -> System.out.println(JSON.toJSONString(person1)));
+        }
+        {
+            Person person=new Person();
+            person.setFirstName("nur");
+            ExampleMatcher matcher=ExampleMatcher.matching().withIgnoreCase().withMatcher("firstName", match -> match.startsWith());
+            Iterable<Person> iterable=personService.findAll(person,matcher);
+            iterable.forEach(person1 -> System.out.println(JSON.toJSONString(person1)));
+        }
+        {
+            Person person=new Person();
+            person.setFirstName("nurmemet");
+            ExampleMatcher matcher = ExampleMatcher.matching()
+                    .withIgnorePaths("firstName")
+                  .withStringMatcher(ExampleMatcher.StringMatcher.STARTING);
+            Iterable<Person> iterable=personService.findAll(person,matcher);
+            iterable.forEach(person1 -> System.out.println(JSON.toJSONString(person1)));
+        }
+
+
+
+    }
 
 }

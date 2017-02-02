@@ -1364,3 +1364,166 @@ public interface SchoolDao extends CrudRepository<School,Long> ,JpaSpecification
         System.out.println(JSON.toJSONString(page));
     }*/
 ```
+
+
+####Query by Example 根据样本查询
+```java
+package com.cn.entity;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+/**
+ * Created by Administrator on 2/2/2017.
+ */
+@Entity
+@Table(name = "person")
+public class Person {
+    @Id
+    @GeneratedValue
+    private Long id;
+    private String firstName;
+    private String lastName;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+}
+
+```
+Dao层继承QueryByExampleExecutor接口
+```java
+package com.cn.reposity;
+
+import com.cn.entity.Person;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.QueryByExampleExecutor;
+
+/**
+ * Created by Administrator on 2/2/2017.
+ */
+public interface PersonDao extends CrudRepository<Person,Long> ,QueryByExampleExecutor<Person> {
+
+}
+
+```
+
+```java
+package com.cn.service;
+
+import com.cn.entity.Person;
+import com.cn.reposity.PersonDao;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.stereotype.Service;
+
+/**
+ * Created by Administrator on 2/2/2017.
+ */
+@Service
+public class PersonService {
+
+    @Autowired
+    PersonDao personDao;
+
+
+    /**
+     * Example 查询
+     * @param probe
+     * @return
+     */
+    public Iterable<Person> findAll(Person probe){
+       return  personDao.findAll(Example.of(probe));
+    }
+
+    /**
+     * 指定匹配规则,默认情况下它会匹配传进来的person参数的所有属性，通过ExampleMatcher你可以指定匹配规则，大小写之类的
+     * @param probe
+     * @param matcher
+     * @return
+     */
+    public Iterable<Person> findAll(Person probe, ExampleMatcher matcher){
+        return  personDao.findAll(Example.of(probe,matcher));
+    }
+
+}
+
+```
+
+下面是测试类
+```java
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = SampleApplication.class)
+public class UserInfoTest {
+
+    //....
+    @Autowired
+    PersonService personService;
+
+
+
+    @Test
+    public void ExampleQueryTest(){
+        {
+            Person person=new Person();
+            person.setLastName("ahmat");
+            Iterable<Person> iterable=personService.findAll(person);
+            iterable.forEach(person1 -> System.out.println(JSON.toJSONString(person1)));
+        }
+        {
+            Person person=new Person();
+            person.setLastName("mat");
+            //下面的lastName 也可以是级联对象，如果是级联对象如：withMatcher("address.city"......
+            ExampleMatcher matcher=ExampleMatcher.matching().withIgnoreCase().withMatcher("lastName", match -> match.endsWith());
+            Iterable<Person> iterable=personService.findAll(person,matcher);
+            iterable.forEach(person1 -> System.out.println(JSON.toJSONString(person1)));
+        }
+        {
+            Person person=new Person();
+            person.setFirstName("nur");
+            ExampleMatcher matcher=ExampleMatcher.matching().withIgnoreCase().withMatcher("firstName", match -> match.startsWith());
+            Iterable<Person> iterable=personService.findAll(person,matcher);
+            iterable.forEach(person1 -> System.out.println(JSON.toJSONString(person1)));
+        }
+        {
+            Person person=new Person();
+            person.setFirstName("nurmemet");
+            ExampleMatcher matcher = ExampleMatcher.matching()
+                    .withIgnorePaths("firstName")
+                  .withStringMatcher(ExampleMatcher.StringMatcher.STARTING);
+            Iterable<Person> iterable=personService.findAll(person,matcher);
+            iterable.forEach(person1 -> System.out.println(JSON.toJSONString(person1)));
+        }
+
+
+
+    }
+    //....
+}
+```
+数据库  
+![](screenshoot/8.png)
