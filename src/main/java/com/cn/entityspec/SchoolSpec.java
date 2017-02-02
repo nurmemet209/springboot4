@@ -2,13 +2,12 @@ package com.cn.entityspec;
 
 import com.cn.entity.School;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.util.StringUtils;
 
-import javax.persistence.criteria.*;
-import java.time.LocalDate;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.DoubleSummaryStatistics;
 import java.util.List;
 
 /**
