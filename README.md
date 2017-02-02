@@ -1544,11 +1544,10 @@ public class UserInfoTest {
  and will set the JDBC transaction to read-only】  
  也就是说在Spring中设置只读事务是利用上面两种方式  
  
- ####数据库加锁与 @Lock注解  [官方文档](http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#locking)  
+####数据库加锁与 @Lock注解  [官方文档](http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#locking)  
  关于乐观锁悲观锁这里不再赘述下面一个别人的博客讲的比较详细[Lock](http://www.jianshu.com/p/4bc01d3c980a)
  
- 
- ####自定义Spring Data repositories [官方文档](http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.custom-implementations)    
+####自定义Spring Data repositories [官方文档](http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.custom-implementations)    
  
  ```java
 package com.cn.entity;
