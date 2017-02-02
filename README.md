@@ -1366,7 +1366,7 @@ public interface SchoolDao extends CrudRepository<School,Long> ,JpaSpecification
 ```
 
 
-####Query by Example 根据样本查询
+####Query by Example 根据样本查询 [官方文档](http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#query-by-example)
 ```java
 package com.cn.entity;
 
