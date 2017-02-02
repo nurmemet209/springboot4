@@ -1601,8 +1601,8 @@ public interface ComputerRepository {
 }
 
 ```
-在跟上面自定义Repository同一个目录下新建它的实现,注意命名规则，自定义接口名称后面加Impl  
-还有注解@Repository
+在跟上面自定义Repository同一个目录下新建它的实现,注意命名规则，自定义接口名称后面加Impl(默认是Impl为后缀，后缀也可以自定义，  
+@EnableJpaRepositories 的repositoryImplementationPostfix属性)还有注解@Repository
 ```java
 package com.cn.reposity;
 
