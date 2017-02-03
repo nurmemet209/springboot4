@@ -181,7 +181,8 @@ public class UserInfoController {
 * 使用@Quey注解的时候实体类必须用@Table(name="表明")注解来配置映射,发现不用@Query的时候用@Entity(name="表名")注解来配置映射不报错
 ，但是用@Query就必须用@Table注解来配置映射
 * @Query+ @Modifying+ @Transactional 如果是更新语句必须得加上@Modifying注解和@Transactional注解,注意返回值，
-是int类型，是本次操作影响的行数
+是int类型，是本次操作影响的行数  
+* @RepositoryDefinition定义接口
 ```java
 package com.cn.reposity;
 
@@ -370,6 +371,25 @@ public interface UserInfoDao extends CrudRepository<UserInfo,Long> {
 }
 
 ```
+
+持久层接口继承 Repository 并不是唯一选择。Repository 接口是 Spring Data 的一个核心接口，它不提供任何方法，开发者需要在自己定义的接口中声明需要的方法。
+与继承 Repository 等价的一种方式，就是在持久层接口上使用 @RepositoryDefinition 注解，并为其指定 domainClass 和 idClass 属性。如下两种方式是完全等价的：
+```java
+package com.cn.reposity;
+
+import com.cn.entity.Pen;
+import org.springframework.data.repository.RepositoryDefinition;
+
+/**
+ * Created by Administrator on 2/3/2017.
+ */
+@RepositoryDefinition(domainClass = Pen.class,idClass = Long.class)
+public interface PenDao {
+
+    Pen findById(Long id);
+}
+
+```
 #### @ManyToOne,@OneToMany注解的使用
 * fetch属性的含义  
 查询模式分别是Lazy（懒加载，当调用该属性的getter方法时才查询数据）,EAGER（第一次查询时跟其它的属性一并带出来）
@@ -549,7 +569,7 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = SampleApplication.class)
 public class UserInfoTest {
-...
+//...
     @Test
     public void ManyToOneTest() {
         List<UserInfo> list = userInfoDao.findAll();
@@ -557,7 +577,7 @@ public class UserInfoTest {
         //注意，不要用JSON.toJSON()方法输出，此方默认不支持循环引用检测，导致序列化的时候内存溢出
         System.out.println( JSON.toJSONString(list));
     }
-...
+//...
 
 }
 

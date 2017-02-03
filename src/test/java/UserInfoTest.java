@@ -51,6 +51,14 @@ public class UserInfoTest {
     @Autowired
     ComputerRepository computerRepository;
 
+    @Autowired
+    PenDao penDao;
+
+    @Test
+    public void penTest(){
+        System.out.println(JSON.toJSONString(penDao.findById(1L)));
+    }
+
     @Test
     public void test() {
         List<UserInfo> list = userInfoDao.findAll();
@@ -250,5 +258,7 @@ public class UserInfoTest {
         Computer computer = computerRepository.findByPrimaryKey(1L);
         System.out.println(JSON.toJSONString(computer));
     }
+
+
 
 }
