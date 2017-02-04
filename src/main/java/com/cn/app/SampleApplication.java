@@ -1,5 +1,6 @@
 package com.cn.app;
 
+import com.cn.reposity.BaseRepositoryCustom;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -12,7 +13,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * Created by Administrator on 1/23/2017.
  */
 @SpringBootApplication(scanBasePackages = "com.cn")
-@EnableJpaRepositories("com.cn.reposity")
+@EnableJpaRepositories(basePackages = "com.cn.reposity")
 @EntityScan("com.cn.entity")
 @EnableJpaAuditing
 public class SampleApplication extends SpringBootServletInitializer {

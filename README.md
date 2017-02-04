@@ -56,7 +56,7 @@ spring.datasource.password=123456
 ```groovy
 compile group: 'com.alibaba', name: 'druid', version: '1.0.27'
 ```
-之后在启动类添加注解
+之后在启动类添加注解(注意@EnableJpaRepositories跟@EntityScan注解)
 ```java
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -366,6 +366,26 @@ public interface UserInfoDao extends CrudRepository<UserInfo,Long> {
     @Transactional
     @Query("update UserInfo u set u.userName=?2 where  u.userName=?1")
     int udpateByUserName(String userNameOld,String userNameNew);
+    
+    //使用top 或first控制查询数量
+    List<UserInfo> queryFirst10ByUserName(String userName);
+    Slice<UserInfo> findTop3ByUserName(String userName);
+    List<UserInfo> findFirst10ByUserName(String userName);
+    List<UserInfo> findTop10ByUserName(String userName);
+    
+    //返回stream
+    @Query("select u from UserInfo u")
+    Stream<UserInfo> findAllByCustomQueryAndStream();
+    @Query("select u from UserInfo u")
+    Stream<UserInfo> streamAllPaged(Pageable pageable);
+    
+    //异步查询
+    @Async
+    Future<UserInfo> findById(Long id);
+    @Async
+    CompletableFuture<UserInfo> findByAge(String age);
+    @Async
+    ListenableFuture<UserInfo> findByTel(String tel);
 
 
 }
@@ -1699,3 +1719,89 @@ public class UserInfoTest {
 }
 
 ```
+
+####自定义Repository
+首先自定义接口(注意注解@NoRepositoryBean)
+```java
+package com.cn.reposity;
+
+import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.data.repository.PagingAndSortingRepository;
+
+import java.io.Serializable;
+
+/**
+ * Created by Administrator on 2/4/2017.
+ */
+@NoRepositoryBean
+public interface BaseRepositoryCustom<T, ID extends Serializable>
+        extends PagingAndSortingRepository<T, ID> {
+
+    void sharedCustomMethod(ID id);
+}
+
+```
+然后是实现
+```java
+package com.cn.reposity;
+
+import org.springframework.data.jpa.repository.support.JpaEntityInformation;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
+
+import javax.persistence.EntityManager;
+import java.io.Serializable;
+
+/**
+ * Created by Administrator on 2/4/2017.
+ */
+@Repository
+public class BaseRepositoryImpl<T, ID extends Serializable>
+        extends SimpleJpaRepository<T, ID> implements BaseRepositoryCustom<T, ID> {
+
+    private final EntityManager entityManager;
+
+    public BaseRepositoryImpl(JpaEntityInformation entityInformation,
+                            EntityManager entityManager) {
+        super(entityInformation, entityManager);
+
+        // Keep the EntityManager around to used from the newly introduced methods.
+        this.entityManager = entityManager;
+    }
+
+    public void sharedCustomMethod(ID id) {
+        System.out.println("this is custom method  "+id);
+    }
+}
+```
+在启动类配置该Repository,repositoryBaseClass=BaseRepositoryCustom.class
+```java
+package com.cn.app;
+
+import com.cn.reposity.BaseRepositoryCustom;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.support.SpringBootServletInitializer;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
+/**
+ * Created by Administrator on 1/23/2017.
+ */
+@SpringBootApplication(scanBasePackages = "com.cn")
+@EnableJpaRepositories(basePackages = "com.cn.reposity",repositoryBaseClass = BaseRepositoryCustom.class)
+@EntityScan("com.cn.entity")
+@EnableJpaAuditing
+public class SampleApplication extends SpringBootServletInitializer {
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        return builder.sources(SampleApplication.class);
+    }
+    public static void main(String[] args){
+        SpringApplication.run(SampleApplication.class,args);
+    }
+}
+
+```
+####Spring Data extensions

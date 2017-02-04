@@ -14,8 +14,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.concurrent.FailureCallback;
+import org.springframework.util.concurrent.SuccessCallback;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Created by Administrator on 1/25/2017.
@@ -54,8 +57,16 @@ public class UserInfoTest {
     @Autowired
     PenDao penDao;
 
+    @Autowired
+    CatDao catDao;
+
     @Test
-    public void penTest(){
+    public void catTest() {
+        System.out.println(JSON.toJSONString(catDao.findOne(1L)));
+    }
+
+    @Test
+    public void penTest() {
         System.out.println(JSON.toJSONString(penDao.findById(1L)));
     }
 
@@ -117,6 +128,22 @@ public class UserInfoTest {
         System.out.println("使用@Query+@Modifying");
         int count = userInfoDao.udpateByUserName("mustapa", "mustafa");
         System.out.println("本次操作影响的行数" + count);
+
+
+        System.out.println("返回stream");
+        userInfoDao.findAllByCustomQueryAndStream().forEach(new Consumer<UserInfo>() {
+            @Override
+            public void accept(UserInfo userInfo) {
+
+                System.out.println(JSON.toJSONString(userInfo));
+            }
+        });
+        System.out.println("异步查询");
+        userInfoDao.findById(1L);
+        userInfoDao.findByAge("26").thenAccept(userInfo -> {});
+        userInfoDao.findByTel("17740867079").addCallback(result -> {},ex -> {});
+
+
     }
 
 
@@ -136,40 +163,40 @@ public class UserInfoTest {
         List<UserInfo> list = userInfoDao.findAll();
         //用fastjson转换JSON输出
         //注意，不要用JSON.toJSON()方法输出，此方默认不支持循环引用检测，导致序列化的时候内存溢出
-        System.out.println( JSON.toJSONString(list));
+        System.out.println(JSON.toJSONString(list));
     }
 
     @Test
-    public void EntityGraphTest(){
+    public void EntityGraphTest() {
         Book book = bookDao.findByName("忏悔录");
         System.out.println(JSON.toJSONString(book));
     }
 
     @Test
-    public void projectionTest(){
-        StudentPro studentPro=studentDao.findById(1L);
+    public void projectionTest() {
+        StudentPro studentPro = studentDao.findById(1L);
         System.out.println(studentPro.getFullName());
         System.out.println(studentPro.getFirstName());
     }
 
     @Test
-    public void storedProceduresTest(){
-        int sum=carDao.anyFunctionName(10,20);
+    public void storedProceduresTest() {
+        int sum = carDao.anyFunctionName(10, 20);
         System.out.println(sum);
-        int sum1=carDao.procedure1(10,30);
+        int sum1 = carDao.procedure1(10, 30);
         System.out.println(sum1);
-        int sum2=carDao.anyFunctionName1(10,40);
+        int sum2 = carDao.anyFunctionName1(10, 40);
         System.out.println(sum2);
-        int sum3=carDao.anyFunctionName2(10,50);
+        int sum3 = carDao.anyFunctionName2(10, 50);
         System.out.println(sum3);
     }
 
     @Test
-    public void schoolTest(){
-        List<School> list=schoolDao.findAll(SchoolSpec.get());
+    public void schoolTest() {
+        List<School> list = schoolDao.findAll(SchoolSpec.get());
         System.out.println(JSON.toJSONString(list));
 
-        Pageable pageable=new Pageable() {
+        Pageable pageable = new Pageable() {
             @Override
             public int getPageNumber() {
                 return 1;
@@ -210,55 +237,53 @@ public class UserInfoTest {
                 return false;
             }
         };
-        Page<School> page=schoolDao.findAll(SchoolSpec.getEmptyOne(),pageable);
+        Page<School> page = schoolDao.findAll(SchoolSpec.getEmptyOne(), pageable);
         System.out.println(JSON.toJSONString(page));
     }
 
 
     @Test
-    public void ExampleQueryTest(){
+    public void ExampleQueryTest() {
         {
-            Person person=new Person();
+            Person person = new Person();
             person.setLastName("ahmat");
-            Iterable<Person> iterable=personService.findAll(person);
+            Iterable<Person> iterable = personService.findAll(person);
             iterable.forEach(person1 -> System.out.println(JSON.toJSONString(person1)));
         }
         {
-            Person person=new Person();
+            Person person = new Person();
             person.setLastName("mat");
             //下面的lastName 也可以是级联对象，如果是级联对象如：withMatcher("address.city"......
-            ExampleMatcher matcher=ExampleMatcher.matching().withIgnoreCase().withMatcher("lastName", match -> match.endsWith());
-            Iterable<Person> iterable=personService.findAll(person,matcher);
+            ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreCase().withMatcher("lastName", match -> match.endsWith());
+            Iterable<Person> iterable = personService.findAll(person, matcher);
             iterable.forEach(person1 -> System.out.println(JSON.toJSONString(person1)));
         }
         {
-            Person person=new Person();
+            Person person = new Person();
             person.setFirstName("nur");
-            ExampleMatcher matcher=ExampleMatcher.matching().withIgnoreCase().withMatcher("firstName", match -> match.startsWith());
-            Iterable<Person> iterable=personService.findAll(person,matcher);
+            ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreCase().withMatcher("firstName", match -> match.startsWith());
+            Iterable<Person> iterable = personService.findAll(person, matcher);
             iterable.forEach(person1 -> System.out.println(JSON.toJSONString(person1)));
         }
         {
-            Person person=new Person();
+            Person person = new Person();
             person.setFirstName("nurmemet");
             ExampleMatcher matcher = ExampleMatcher.matching()
                     .withIgnorePaths("firstName")
-                  .withStringMatcher(ExampleMatcher.StringMatcher.STARTING);
-            Iterable<Person> iterable=personService.findAll(person,matcher);
+                    .withStringMatcher(ExampleMatcher.StringMatcher.STARTING);
+            Iterable<Person> iterable = personService.findAll(person, matcher);
             iterable.forEach(person1 -> System.out.println(JSON.toJSONString(person1)));
         }
-
 
 
     }
 
 
     @Test
-    public void CustomRepositoryTest(){
+    public void CustomRepositoryTest() {
         Computer computer = computerRepository.findByPrimaryKey(1L);
         System.out.println(JSON.toJSONString(computer));
     }
-
 
 
 }
