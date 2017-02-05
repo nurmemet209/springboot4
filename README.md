@@ -611,7 +611,7 @@ left join的方式一次性查出UserInfo的信息而分两次查询第一次查
 但group表只查询两次是因为 UserInfo表里面的group_id有重复，分别是1,1,2
 ![](screenshoot/5.png)
 
-####使用@CreatedBy,@CreatedDate注解
+####使用@CreatedBy,@CreatedDate注解 [官方文档](http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#auditing)
 * 启动类添加@EnableJpaAuditing注解
 ```java
 package com.cn.app;
