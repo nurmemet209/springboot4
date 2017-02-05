@@ -21,10 +21,6 @@ public class UserInfoController {
     @ResponseBody
     @RequestMapping("add")
     public String  add(UserInfo userInfo){
-        userInfo=new UserInfo();
-        userInfo.setUserName("alim");
-        userInfo.setAddress("和田");
-        userInfo.setTel("121212121");
         userInfoService.addUserInfo(userInfo);
         return "success";
     }

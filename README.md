@@ -1797,11 +1797,12 @@ public class SampleApplication extends SpringBootServletInitializer {
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
         return builder.sources(SampleApplication.class);
-    }
+    } 
     public static void main(String[] args){
         SpringApplication.run(SampleApplication.class,args);
     }
 }
 
 ```
-####Spring Data extensions
+####DSL查询 [官方文档](http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#core.extensions.querydsl)
+关于dsl我会另写一篇文章详细讲述。

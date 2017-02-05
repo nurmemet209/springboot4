@@ -44,11 +44,10 @@ dependencies {
     providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
     //spring data-jpa
     compile('org.springframework.boot:spring-boot-starter-data-jpa')
-    //compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '1.4.2.RELEASE'
-//    compile('org.springframework.boot:spring-boot-starter-freemarker')
-//    compile('org.springframework:spring-orm')
-//    compile('org.hibernate:hibernate-entitymanager')
-//    runtime('com.h2database:h2')
+    // https://mvnrepository.com/artifact/com.querydsl/querydsl-jpa
+//    compile group: 'com.querydsl', name: 'querydsl-jpa', version: '4.1.4'
+
+
     //mysql 驱动
     runtime('mysql:mysql-connector-java')
     // druiduo作为数据库连接池管理

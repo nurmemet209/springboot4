@@ -19,6 +19,7 @@ import org.springframework.util.concurrent.SuccessCallback;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * Created by Administrator on 1/25/2017.
@@ -60,8 +61,17 @@ public class UserInfoTest {
     @Autowired
     CatDao catDao;
 
+    @Autowired
+    MouseDao mouseDao;
+
+    @Test
+    public void mouseTest(){
+        System.out.println("sdfdfd");
+    }
+
     @Test
     public void catTest() {
+
         System.out.println(JSON.toJSONString(catDao.findOne(1L)));
     }
 
